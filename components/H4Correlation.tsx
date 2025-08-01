@@ -3,13 +3,14 @@ import Papa from "papaparse";
 import {
   CartesianGrid,
   Legend,
+  ReferenceLine,
   Scatter,
   ScatterChart,
   XAxis,
   YAxis,
 } from "recharts";
 
-const OFFSET = 10;
+const OFFSET = 5;
 
 function addGlobalOffsets(rows: any[]): any[] {
   const clusters: Record<string, any[]> = {};
@@ -56,6 +57,9 @@ const H4Correlation = () => {
       });
   }, []);
 
+  const min = data.reduce((min, d) => Math.min(min, d.Score), Infinity);
+  const max = data.reduce((max, d) => Math.max(max, d.Score), -Infinity);
+
   return (
     <div>
       <ScatterChart width={600} height={400}>
@@ -63,10 +67,30 @@ const H4Correlation = () => {
         <XAxis
           type="number"
           dataKey="Score"
-          domain={[1.4, 2]}
+          domain={[1.5, 1.95]}
           name="Computed Score"
         />
-        <YAxis type="number" dataKey="Rating" name="Experts Ratings" />
+        <YAxis
+          ticks={[-1, 0, 1]}
+          tickFormatter={(value) => {
+            if (value === -1) return "Schlecht";
+            if (value === 0) return "Mittel";
+            if (value === 1) return "Gut";
+            return "";
+          }}
+          type="number"
+          dataKey="Rating"
+          name="Experts Ratings"
+          domain={[-1.2, 1.2]}
+        />
+        <ReferenceLine
+          segment={[
+            { x: min, y: -1 },
+            { x: max, y: 1 },
+          ]}
+          stroke="#888"
+          strokeDasharray="5 5"
+        />
         <Legend />
         {[...new Array(4)].map((_val, idx) => (
           <Scatter
