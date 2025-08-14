@@ -10,7 +10,6 @@ import {
 } from "recharts";
 import Papa from "papaparse";
 import { NAMES } from "./H1TeamRatings";
-import { Group } from "next/dist/shared/lib/router/utils/route-regex";
 
 interface DataPoint {
   name: string;
@@ -60,7 +59,7 @@ const renderScatter = (data: Grouped[], title: string, avg: Grouped) => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-      <h2>{title}</h2>
+      <h2 style={{marginLeft: "70px"}}>{title}</h2>
       {avg.data.map((m) => (
         <span key={m.metric}>
           {m.metric} dif avg.: {m.diff.toFixed(4)}{" "}
@@ -70,37 +69,41 @@ const renderScatter = (data: Grouped[], title: string, avg: Grouped) => {
       <ScatterChart
         width={600}
         height={400}
-        margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
+        margin={{ right: 20, bottom: 20, left: 20 }}
       >
         <CartesianGrid />
         <XAxis
           type="category"
           dataKey="metric"
           name="Metric"
-          tickFormatter={(v) => `Metric ${v}`}
           allowDuplicatedCategory={false}
+          label={{
+              value: 'Metrik',
+              position: "bottom",
+              offset: 0
+            }}
         />
         <YAxis
           type="number"
           dataKey="diff"
           name="Difference"
           domain={[-0.2, 0.2]}
+          label={{
+              angle: -90,
+              value: 'Differenz-Metriken im Durchschnitt',
+              position: "left",
+              style: { textAnchor: 'middle' }, // centers the label
+              offset: 0
+            }}
         />
-        <Tooltip
-          cursor={{ strokeDasharray: "3 3" }}
-          formatter={(value: any, name: string, props: any) => [
-            `${value}%`,
-            name === "metric" ? "Metric" : "Difference",
-          ]}
-          labelFormatter={(label) => `Metric ${label}`}
-        />
-        <Legend />
+        <Legend wrapperStyle={{bottom: 0}}  />
         {[...data, avg].map((datapoint) => (
           <Scatter
             key={datapoint.name}
             name={datapoint.name}
             data={datapoint.data}
             fill={datapoint.color}
+            line={datapoint.name === "Durchschnitt"}
           />
         ))}
       </ScatterChart>
@@ -171,10 +174,13 @@ const H2GeneralDif: React.FC = () => {
 
     const variance =
       values.length > 1
-        ? values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
-          (values.length - 1)
+        ? Math.sqrt(
+            values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+            (values.length - 1)
+          )
         : 0;
-    return { name: "Average", metric, diff: mean, variance };
+
+    return { name: "Durchschnitt", metric, diff: mean, variance };
   });
 
   const metricVariances2 = difMetrics.map((metric) => {
@@ -190,11 +196,13 @@ const H2GeneralDif: React.FC = () => {
 
     const variance =
       values.length > 1
-        ? values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
-          (values.length - 1)
+        ? Math.sqrt(
+            values.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) /
+            (values.length - 1)
+          )
         : 0;
 
-    return { name: "Average", metric, variance, diff: mean };
+    return { name: "Durchschnitt", metric, variance, diff: mean };
   });
 
   const varAvgUncalibrated =
@@ -206,14 +214,14 @@ const H2GeneralDif: React.FC = () => {
     metricVariances2.length;
 
   const avg = {
-    name: "Average",
+    name: "Durchschnitt",
     data: metricVariances,
     variance: 0,
     color: "#c0392b",
   };
 
   const avg2 = {
-    name: "Average",
+    name: "Durchschnitt",
     data: metricVariances2,
     variance: 0,
     color: "#c0392b",
@@ -223,10 +231,10 @@ const H2GeneralDif: React.FC = () => {
     <div style={{ display: "flex", flexDirection: "row", gap: "20px" }}>
       <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
         <span>
-          Variance average in uncalibrated: {varAvgUncalibrated.toFixed(4)}
+          Std. Abweichung mit Vergleich zum Standard Fall: {varAvgUncalibrated.toFixed(4)}
         </span>
         <span>
-          Variance average in calibrated: {varAvgCalibrated.toFixed(4)} (
+          Std. Abweichung mit Vergleich zum Kalbrierten Fall: {varAvgCalibrated.toFixed(4)} (
           {((varAvgCalibrated / varAvgUncalibrated) * 100 - 100 || 0).toFixed(
             0
           )}
@@ -243,34 +251,38 @@ const H2GeneralDif: React.FC = () => {
             dataKey="metric"
             name="Metric"
             allowDuplicatedCategory={false}
+            label={{
+              value: 'Metrik',
+              position: "bottom",
+              offset: 0
+            }}
           />
-          <YAxis type="number" dataKey="variance" name="Variance" />
-          <Tooltip
-            formatter={(value: any, name: string) => [
-              value.toFixed(2),
-              name.charAt(0).toUpperCase() + name.slice(1),
-            ]}
-            labelFormatter={(label) => `Metric ${label}`}
-          />
-          <Legend />
+          <YAxis type="number" dataKey="variance" name="Variance" label={{
+              angle: -90,
+              value: 'Std. Abweichung: Score',
+              position: "left",
+              style: { textAnchor: 'middle' }, // centers the label
+              offset: 0
+            }} />
+          <Legend wrapperStyle={{bottom: 0}} />
           <Scatter
             line
-            name="Uncalibrated Variance"
+            name="Standard Vergleich"
             data={metricVariances}
             fill="#8884d8"
             shape="circle"
           />
           <Scatter
             line
-            name="Calibrated Variance"
+            name="Kalibrierter Vergleich"
             data={metricVariances2}
             fill="#82ca9d"
             shape="circle"
           />
         </ScatterChart>
       </div>
-      {renderScatter(data, "Uncalibrated", avg)}
-      {renderScatter(data2, "Calibrated", avg2)}
+      {renderScatter(data, "Standard Vergleich: Differenz-Metriken", avg)}
+      {renderScatter(data2, "Parameterisierter Vergleich: Differenz-Metriken", avg2)}
     </div>
   );
 };

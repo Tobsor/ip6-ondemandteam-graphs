@@ -19,6 +19,7 @@ export const COLORS = [
   "#FFBB28",
   "#00C49F",
   "#FF8042",
+  "#42e3ffc5",
 ];
 
 export const NAMES = [
@@ -92,8 +93,8 @@ const H1TeamRatings: React.FC = () => {
   }, []);
 
   return (
-    <ResponsiveContainer width="50%" height={300}>
-      <ScatterChart>
+    <ResponsiveContainer width="40%" height={300}>
+      <ScatterChart margin={{top: 20, left: 200, bottom: 35}}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
           type="category"
@@ -102,11 +103,24 @@ const H1TeamRatings: React.FC = () => {
           interval={0} // Always show all ticks
           allowDuplicatedCategory={false}
           domain={[-0.3, 2.3]} // Add offset so points are not on the axis
-        />
+          label={{
+            value: 'Bewertete Teams',
+            position: "bottom",
+            style: { textAnchor: 'middle' }, // centers the label
+            offset: 0
+          }}
+          />
         <YAxis
           type="number"
           dataKey="rating"
           name="Rating"
+          label={{
+            value: 'Bewertungen',
+            angle: -90, // rotates the label vertically
+            position: 'left', // or 'outsideLeft'
+            style: { textAnchor: 'middle' }, // centers the label
+            offset:20
+          }}
           ticks={[0, 1, 2]}
           interval={0} // Always show all ticks
           domain={[-0.3, 2.3]} // Add offset so points are not on the axis
@@ -117,7 +131,7 @@ const H1TeamRatings: React.FC = () => {
             return value;
           }}
         />
-        <Legend />
+        <Legend wrapperStyle={{ bottom: 10 }} />
         {NAMES.map((person) => (
           <Scatter
             key={person.name}

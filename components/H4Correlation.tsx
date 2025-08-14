@@ -61,16 +61,28 @@ const H4Correlation = () => {
   const max = data.reduce((max, d) => Math.max(max, d.Score), -Infinity);
 
   return (
-    <div>
-      <ScatterChart width={600} height={400}>
+    <div style={{ marginLeft: 100}}>
+      <ScatterChart width={600} height={400} margin={{ left: 20, bottom: 20 }}>
         <CartesianGrid />
         <XAxis
           type="number"
           dataKey="Score"
           domain={[1.5, 1.95]}
           name="Computed Score"
-        />
+          label={{
+                value: "Score",
+                position: "bottom",
+                offset: 0
+              }}
+          />
         <YAxis
+          label={{
+                angle: -90,
+                value: "Bewertungen",
+                position: "left",
+                style: { textAnchor: 'middle' }, // centers the label
+                offset: 15
+              }}
           ticks={[-1, 0, 1]}
           tickFormatter={(value) => {
             if (value === -1) return "Schlecht";
@@ -91,7 +103,7 @@ const H4Correlation = () => {
           stroke="#888"
           strokeDasharray="5 5"
         />
-        <Legend />
+        <Legend wrapperStyle={{bottom: 0}}/>
         {[...new Array(4)].map((_val, idx) => (
           <Scatter
             key={idx}

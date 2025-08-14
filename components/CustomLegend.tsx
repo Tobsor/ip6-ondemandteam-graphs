@@ -1,3 +1,5 @@
+import { loadEnvFile } from "process";
+
 export const COLOR_MAP: Record<string, string> = {
   yes: "#3498db",
   no: "#e67e22",
@@ -5,9 +7,9 @@ export const COLOR_MAP: Record<string, string> = {
 };
 
 const KEY_LABELS: Record<string, string> = {
-  yes: "Considered in Algorithm",
-  no: "Not Considered in Algorithm",
-  partially: "Partially Considered in Algorithm",
+  yes: "Im Algorithmus mitbeachtet",
+  no: "Im Algorithmus nicht beachtet",
+  partially: "Teilweise durch den Algorithmus abgedeckt",
 };
 
 const CustomLegend = () => {
@@ -21,6 +23,7 @@ const CustomLegend = () => {
         width: "100%",
         justifyContent: "center",
         gap: "20px",
+        marginLeft: 70
       }}
     >
       {Object.entries(COLOR_MAP).map(([key, color]) => (
