@@ -39,6 +39,7 @@ function addGlobalOffsets(rows: any[]): any[] {
 
 const H4Correlation = () => {
   const [data, setData] = useState<any[]>([]);
+  const [corPerPerson, setCorPerPerson] = useState<any[]>([]);
 
   useEffect(() => {
     fetch("/data/h4correlations.csv")
@@ -57,12 +58,28 @@ const H4Correlation = () => {
       });
   }, []);
 
+  useEffect(() => {
+    fetch("/data/h4correlationsperperson.csv")
+      .then((response) => response.text())
+      .then((csvText) => {
+        const parsed = Papa.parse(csvText, { header: true, delimiter: ";" });
+        setCorPerPerson(parsed.data.filter((row) => !!row.Name));
+      });
+  }, []);
+
   const min = data.reduce((min, d) => Math.min(min, d.Score), Infinity);
   const max = data.reduce((max, d) => Math.max(max, d.Score), -Infinity);
 
   return (
-    <div style={{ marginLeft: 100}}>
-      <ScatterChart width={600} height={400} margin={{ left: 20, bottom: 20 }}>
+    <div>
+      <h2>Correlation of Team Ratings</h2>
+      {corPerPerson.map((person) => (
+        <div key={person.Name} style={{ marginBottom: "5px" }}>
+          Correlation with {person.Name}:{" "}
+          {parseFloat(person.Correlation).toFixed(2) * 100}%
+        </div>
+      ))}
+      <ScatterChart width={600} height={400}>
         <CartesianGrid />
         <XAxis
           type="number"
