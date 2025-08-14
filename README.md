@@ -21,7 +21,7 @@ To get started with this project, follow these steps:
    ```
 
 3. **Add the data:**
-   If you did not receive the data already, ask Tobias Wahl if he can provide you. Once received, store all data in projects directory under `./public/data`.
+   If you did not receive the data already, ask Tobias Wahl if he can provide you. Once received, create the directory `./public/data` and add the data here.
 
 4. **Run the application:**
    Start the development server:
